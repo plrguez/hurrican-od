@@ -9,6 +9,8 @@
 # aros        : AROS Research Operating System (OpenGL1)
 # rpi         : Raspberry PI (OpenGLES2)
 # gcw         : GCW Zero handheld (OpenGLES2)
+# opendingux  : JZ4770 MIPS devices with OpenDingux mainline firmware
+#               GCW Zero, RG350(P/M), RG280(V/M)
 # rdu         : IMS display version 1
 # rdu2        : IMS display version 2
 # pandora     : Pandora handheld (OpenGLES2)
@@ -136,6 +138,32 @@ LDFLAGS := -lpthread -lmodplug -lSDL_mixer -lSDL_image -lSDL -lGLESv2 -lEGL
 
 endif
 
+ifeq ($(TARGET),opendingux)
+
+GCWSDK := /opt/gcw0-toolchain/usr
+EXE := ../hurrican-od
+CXX := $(GCWSDK)/bin/mipsel-gcw0-linux-uclibc-g++
+CC  := $(GCWSDK)/bin/mipsel-gcw0-linux-uclibc-gcc
+LD  := $(GCWSDK)/bin/mipsel-gcw0-linux-uclibc-g++
+RM  := rm -f
+
+USE_EGL := yes
+USE_GL2 := yes
+USE_FLTO := yes
+USE_NO_EXCEPTIONS := yes
+
+DEFINES += -DOPENDINGUX -DUSE_GLES2 -DUSE_EGL_RAW
+DEFINES += -DUSE_HOME_DIR -DUSE_FAST_RNG -DUSE_FAST_TRIG -DEGL_NO_X11
+INCLUDES_OS := -I$(GCWSDK)/mipsel-gcw0-linux-uclibc/sysroot/usr/include/SDL \
+	       -I$(GCWSDK)/mipsel-gcw0-linux-uclibc/sysroot/usr/include/libdrm \
+               -I$(GCWSDK)/mipsel-gcw0-linux-uclibc/sysroot/usr/include/libmodplug \
+               -I$(GCWSDK)/mipsel-gcw0-linux-uclibc/sysroot/usr/include/GLES2 \
+               -I$(GCWSDK)/mipsel-gcw0-linux-uclibc/sysroot/usr/include/EGL
+
+LDFLAGS := -ldrm -lgbm -lpthread -lmodplug -lSDL_mixer -lSDL_image -lSDL -lGLESv2 -lEGL -lshake
+
+endif
+
 ifeq ($(TARGET),rdu)
 
 EXE := ../hurrican
@@ -240,7 +268,7 @@ USE_FBO := yes
 
 DEFINES += -DLINUX -DUSE_HOME_DIR -DUSE_GLES2 -DUSE_EGL_SDL
 
-INCLUDES_OS := -I/usr/include -I/usr/include/SDL -I/usr/include/GLES2 -I/usr/include/libmodplug
+INCLUDES_OS := -I/usr/include -I/usr/include/SDL -I/usr/include/GLES2 -I/usr/include/libmodplug -I/usr/include/drm
 LDFLAGS := -g -lSDL -lGLESv2 -lSDL_mixer -lSDL_image -lmodplug -lX11 -lEGL
 
 endif
@@ -267,6 +295,9 @@ endif
 INCLUDES := -I. -I./SDLPort -I./cml $(INCLUDES_OS)
 
 COMMON_CXXFLAGS := -Wall -fsingle-precision-constant -fno-rtti
+ifeq ($(TARGET),opendingux)
+COMMON_CXXFLAGS += -mips32r2
+endif
 LDFLAGS += $(COMMON_CXXFLAGS)
 
 ifeq ($(USE_FLTO),yes)
@@ -537,4 +568,7 @@ $(EXE) : $(ALL_OBJS)
 .PHONY : clean
 
 clean :
-	$(RM) *.o SDLPort/*.o unrarlib040/unrarlib/*.o $(EXE)
+	$(RM) *.o SDLPort/*.o $(EXE)
+ifeq ($(USE_UNRARLIB),yes)
+	$(RM) unrarlib040/unrarlib/*.o
+endif
