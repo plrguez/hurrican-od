@@ -4,7 +4,7 @@
 //
 // Beinhaltet den Haupt Game-Loop
 //
-// (c) 2002 Jörg M. Winterstein
+// (c) 2002 Jï¿½rg M. Winterstein
 //
 // --------------------------------------------------------------------------------------
 
@@ -44,13 +44,13 @@ float	WackelMaximum  = 0.0f;								// Maximaler Screen-Wackel Ausschlag
 float	WackelValue    = 0.0f;								// Aktueller Screen-Wackel Ausschlag
 float	WackelDir	   = 0.0f;								// Aktuelle Wackel-Richtung
 float	WackelSpeed	   = 0.0f;								// Aktuelle Wackel-Geschwindigkeit
-float	ScreenWinkel   = 0.0f;								// in welchem zWinkel steht der Screen grad (für säulen, die das Level zum Kippen bringen)
+float	ScreenWinkel   = 0.0f;								// in welchem zWinkel steht der Screen grad (fï¿½r sï¿½ulen, die das Level zum Kippen bringen)
 float	WarningCount   = 0.0f;								// Counter, ob ein "Warning" angezeigt wird
 bool	JoystickFound;
 bool	UseForceFeedback = false;							// ForceFeedback benutzen?
 bool	ShowSummary = false;
 
-long    DEMOPress		= 0;								// Counter bis zum nächsten Tastendruck
+long    DEMOPress		= 0;								// Counter bis zum nï¿½chsten Tastendruck
 bool	DEMORecording	= false;							// demo wird grad aufgenommen
 bool	DEMOPlaying		= false;							// demo spielt gradf ab
 FILE   *DEMOFile		= NULL;								// Datei in der das Demo gespeichert wird
@@ -216,7 +216,7 @@ void ShowGameOver(void)
     Player[0].GameOverTimer -= 0.75f SYNC;
 
     // GameOver vorbei ?
-    // Dann schön alle löschen und auf ein neues Spiel vorbereiten
+    // Dann schï¿½n alle lï¿½schen und auf ein neues Spiel vorbereiten
     if (Player[0].GameOverTimer <= 0.0f)
     {
         Player[0].GameOverTimer = 0.0f;
@@ -242,7 +242,7 @@ void GameLoop(void)
     //      are enabled. Disabling screen-clear here helps embedded platforms
     //      which have very limited fill-rate.
 #if 0 //DKS-DISABLED SCREEN CLEAR IN MAIN GAME LOOP
-    // Total löschen
+    // Total lï¿½schen
 #if defined(PLATFORM_DIRECTX)
     //DKS - Since I removed all use of the Z-coordinate, this should be changed too. Note: DirectX is entirely untested.
     //lpD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
@@ -343,7 +343,7 @@ void GameLoop(void)
     TileEngine.DrawFrontLevel();
 
     //DKS - Lightmap code in original game was never used and all related code has now been disabled:
-    //// LighMaps löschen
+    //// LighMaps lï¿½schen
     //if (options_Detail >= DETAIL_HIGH)
     //    TileEngine.ClearLightMaps();
 
@@ -380,7 +380,7 @@ void GameLoop(void)
             Player[p].DrawPlayer(true, false);
     }
 
-    // Schüsse abhandeln
+    // Schï¿½sse abhandeln
     Projectiles.DoProjectiles();
 
     // Partikel abhandeln
@@ -428,12 +428,12 @@ void GameLoop(void)
         DirectGraphics.SetColorKeyMode();
     }
 
-    // Blitz und andere Partikel rendern, die alles überlagern
+    // Blitz und andere Partikel rendern, die alles ï¿½berlagern
     PartikelSystem.DoThunder ();
 
     if (Console.Showing == false)
     {
-        // Waffen 1-3 auswählen
+        // Waffen 1-3 auswï¿½hlen
         if (KeyDown(DIK_1))
             Player[0].SelectedWeapon = 0;
 
@@ -455,10 +455,14 @@ void GameLoop(void)
         ShowGameOver();
 
     // Gameloop verlassen ?
+#if defined(OPENDINGUX)
+    if (KeyDown(DIK_ESCAPE) && Player[0].ControlType == CONTROLTYPE_KEYBOARD && Player[0].GameOverTimer == 0.0f)
+#else
     if (KeyDown(DIK_ESCAPE) && Player[0].GameOverTimer == 0.0f)
+#endif
         LeaveGameLoop();
 
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
     // On GCW Zero, same check as above, but using the internal controls
     if (DirectInput.InternalJoystickMainMenuButtonDown() && Player[0].GameOverTimer == 0.0f)
         LeaveGameLoop();
@@ -547,19 +551,19 @@ void SetScreenShake (void)
 
     MYMATH_FTOL(f, Winkel);
 
-    // Winkel angleichen, damit er immer zwischen 0° und 360° bleibt
+    // Winkel angleichen, damit er immer zwischen 0ï¿½ und 360ï¿½ bleibt
     //
     if (Winkel > 360) Winkel -= 360;
     if (Winkel < 0)	  Winkel += 360;
     D3DXMatrixRotationZ  (&matRot, DegreetoRad[Winkel]);
 
     D3DXMatrixTranslation(&matTrans, -320.0f,-240.0f, 0.0f);			// Transformation zum Ursprung
-    D3DXMatrixTranslation(&matTrans2, 320.0f, 240.0f, 0.0f);			// Transformation wieder zurück
+    D3DXMatrixTranslation(&matTrans2, 320.0f, 240.0f, 0.0f);			// Transformation wieder zurï¿½ck
 
     D3DXMatrixIdentity	 (&matView);
     D3DXMatrixMultiply	 (&matView, &matView, &matTrans);		// Verschieben
     D3DXMatrixMultiply	 (&matView, &matView, &matRot);			// rotieren
-    D3DXMatrixMultiply	 (&matView, &matView, &matTrans2);		// und wieder zurück verschieben
+    D3DXMatrixMultiply	 (&matView, &matView, &matTrans2);		// und wieder zurï¿½ck verschieben
 
     // rotierte Matrix setzen
 #if defined(PLATFORM_DIRECTX)
@@ -590,7 +594,7 @@ void ScreenWackeln(void)
         }
 
         if (WackelMaximum <= 0.0f)					// Wackeln zuende ?
-            WackelMaximum  = 0.0f;					// Dann aufhören damit
+            WackelMaximum  = 0.0f;					// Dann aufhï¿½ren damit
     }
 
     SetScreenShake();
@@ -602,7 +606,7 @@ void ScreenWackeln(void)
 
 void ShakeScreen (float staerke)
 {
-    // Werte für das Screenwackeln setzen, um den Screen leicht zu schütteln
+    // Werte fï¿½r das Screenwackeln setzen, um den Screen leicht zu schï¿½tteln
     WackelMaximum =  staerke;
     WackelValue   =  0.0f;
     WackelDir	  =  1.0f;
@@ -683,7 +687,7 @@ void CreateDefaultControlsConfig(int player)
         Player[0].JoystickMode = JOYMODE_JOYPAD;
         Player[0].ControlType = CONTROLTYPE_KEYBOARD;
 
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
         // On GCW Zero, the Player 1 default joy index is the internal controls and both players use joystick:
         Player[0].JoystickIndex = DirectInput.GetInternalJoystickIndex();
         Player[0].ControlType = CONTROLTYPE_JOY;
@@ -742,7 +746,7 @@ void CreateDefaultControlsConfig(int player)
         Player[1].JoystickMode = JOYMODE_JOYPAD;
         Player[1].ControlType = CONTROLTYPE_KEYBOARD;
 
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
         // On GCW Zero, both players use joystick by default:
         Player[1].ControlType = CONTROLTYPE_JOY;
 #endif //GCW
@@ -768,7 +772,7 @@ void CreateDefaultConfig(void)
 
     options_Detail = DETAIL_MAXIMUM;
 
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
     // Max detail is too much for GCW Zero:
     options_Detail = DETAIL_HIGH;   
 #endif //GCW
@@ -777,8 +781,8 @@ void CreateDefaultConfig(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Konfiguration mit den Sound-Lautstärken laden
-// Existiert diese Datei nicht, so werden die Lautstärken auf den
+// Konfiguration mit den Sound-Lautstï¿½rken laden
+// Existiert diese Datei nicht, so werden die Lautstï¿½rken auf den
 // Defaut Wert gesetzt
 // --------------------------------------------------------------------------------------
 
@@ -794,7 +798,7 @@ bool LoadConfig(void)
     char *temp = (char *)malloc(strlen(g_save_ext) + 1 + strlen(CONFIGFILE) + 1);
     sprintf_s( temp, "%s/%s", g_save_ext, CONFIGFILE );
 
-    fopen_s(&Datei, temp, "rb");		// versuchen Datei zu öffnen
+    fopen_s(&Datei, temp, "rb");		// versuchen Datei zu ï¿½ffnen
     free((void *)temp);
 
     if (Datei == NULL)
@@ -810,12 +814,12 @@ bool LoadConfig(void)
         LoadLanguage(ActualLanguage);
     }
 
-    // Daten für Sound und Musik-Lautstärke auslesen
+    // Daten fï¿½r Sound und Musik-Lautstï¿½rke auslesen
     fread(&Sound, sizeof(Sound), 1, Datei);
     fread(&Musik, sizeof(Musik), 1, Datei);
     SoundManager.SetVolumes(Sound, Musik);
 
-    // Daten für Keyboard und Joystick auslesen
+    // Daten fï¿½r Keyboard und Joystick auslesen
     fread(&Player[0].AktionKeyboard, sizeof(Player[0].AktionKeyboard), 1, Datei);
     fread(&Player[0].AktionJoystick, sizeof(Player[0].AktionJoystick), 1, Datei);
     fread(&Player[0].Walk_UseAxxis,  sizeof(Player[0].Walk_UseAxxis), 1, Datei);
@@ -838,7 +842,7 @@ bool LoadConfig(void)
     // Joystick nicht mehr da?
     if (DirectInput.Joysticks[Player[0].JoystickIndex].Active == false)
     {
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
         //GCW Zero player 1 defaults:
         Player[0].ControlType = CONTROLTYPE_JOY;
         Player[0].JoystickMode = JOYMODE_JOYPAD;
@@ -853,7 +857,7 @@ bool LoadConfig(void)
 
     if (DirectInput.Joysticks[Player[1].JoystickIndex].Active == false)
     {
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
         //GCW Zero player 2 defaults:
         Player[1].ControlType = CONTROLTYPE_JOY;
         Player[1].JoystickMode = JOYMODE_JOYPAD;
@@ -892,7 +896,7 @@ bool LoadConfig(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Aktuelle Konfiguration mit den Sound-Lautstärken speichern
+// Aktuelle Konfiguration mit den Sound-Lautstï¿½rken speichern
 // --------------------------------------------------------------------------------------
 
 void SaveConfig(void)
@@ -919,14 +923,14 @@ void SaveConfig(void)
     // Spracheinstellung speichern
     fwrite(&ActualLanguage, sizeof(ActualLanguage), 1, Datei);
 
-    // Daten für Sound und Musik-Lautstärke schreiben
+    // Daten fï¿½r Sound und Musik-Lautstï¿½rke schreiben
     Sound = float(SoundManager.g_sound_vol);
     Musik = float(SoundManager.g_music_vol);
 
     fwrite(&Sound, sizeof(Sound), 1, Datei);
     fwrite(&Musik, sizeof(Musik), 1, Datei);
 
-    // Daten für Keyboard und Joystick schreiben
+    // Daten fï¿½r Keyboard und Joystick schreiben
     fwrite(&Player[0].AktionKeyboard, sizeof(Player[0].AktionKeyboard), 1, Datei);
     fwrite(&Player[0].AktionJoystick, sizeof(Player[0].AktionJoystick), 1, Datei);
     fwrite(&Player[0].Walk_UseAxxis,  sizeof(Player[0].Walk_UseAxxis), 1, Datei);
@@ -966,7 +970,7 @@ bool DisplayLoadInfo(const char Text[100])
     // TODO FIX
     /*
     	strrev (Text);				// String umdrehen
-    	strnset(Text, ' ', 2);		// Ersten zwei (vorher letzten Zwei = \n) Buchstaben löschen
+    	strnset(Text, ' ', 2);		// Ersten zwei (vorher letzten Zwei = \n) Buchstaben lï¿½schen
     	strrev (Text);				// Wieder richtig herum drehen
     	*/
 
@@ -1068,7 +1072,7 @@ void ExplodePlayer(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Stage Clear Musik dudelt und Spieler läuft aus dem Screen raus
+// Stage Clear Musik dudelt und Spieler lï¿½uft aus dem Screen raus
 // --------------------------------------------------------------------------------------
 
 void StageClear(bool PlaySong)
@@ -1163,7 +1167,7 @@ void SummaryScreen(void)
 
         Gegner.RunAll();
         Gegner.RenderAll();
-        Projectiles.DoProjectiles	();				// Schüsse abhandeln
+        Projectiles.DoProjectiles	();				// Schï¿½sse abhandeln
 
         // Overlay Tiles des Levels zeigen und Spieler und Objekte verdecken
         TileEngine.DrawOverlayLevel();
@@ -1176,7 +1180,7 @@ void SummaryScreen(void)
 
         HUD.DoHUD();								// HUD anhandeln
 
-        // Blitz und andere Partikel rendern, die alles überlagern
+        // Blitz und andere Partikel rendern, die alles ï¿½berlagern
         PartikelSystem.DoThunder ();
 
         // Summary Screen rendern
@@ -1331,7 +1335,7 @@ bool NewDemo (const char Filename[])
     NewStage = l;
     InitNewGameLevel (Stage);
 
-    // Timer auf 60 fps für Demo setzen
+    // Timer auf 60 fps fï¿½r Demo setzen
     Timer.SetMaxFPS(40);
 
     return true;
@@ -1352,7 +1356,7 @@ bool LoadDemo (const char Filename[])
     //DKS - Fixed bug in handling size of full demo path: sizeof(100) returns something very different than 100
     //      (Thank you to Alexander Troosh for the bug report.)
     //DKS - Full paths can also now be longer:
-    //// File öffnen
+    //// File ï¿½ffnen
     //char temp[100];
     //snprintf( temp, sizeof(100), "%s/%s", g_save_ext, Filename );
 
@@ -1393,7 +1397,7 @@ bool LoadDemo (const char Filename[])
     NewStage = l;
     InitNewGameLevel (Stage);
 
-    // Timer auf 60 fps für Demo setzen
+    // Timer auf 60 fps fï¿½r Demo setzen
     Timer.SetMaxFPS(40);
 
     return true;
@@ -1515,7 +1519,7 @@ void ShowPissText(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Zufällig ein Ziel aussuchen
+// Zufï¿½llig ein Ziel aussuchen
 // --------------------------------------------------------------------------------------
 
 PlayerClass* ChooseAim(void)

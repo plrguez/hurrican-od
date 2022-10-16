@@ -2,9 +2,9 @@
 
 // --------------------------------------------------------------------------------------
 //
-// Konsolen-Klasse für Hurrican
+// Konsolen-Klasse fï¿½r Hurrican
 //
-// (c) 2002 Jörg M. Winterstein
+// (c) 2002 Jï¿½rg M. Winterstein
 //
 // --------------------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ bool ConsoleClass::CONSOLE_CHEAT(char *cheat)
 }
 
 // --------------------------------------------------------------------------------------
-// Text checken, wenn Enter gedrückt wurde
+// Text checken, wenn Enter gedrï¿½ckt wurde
 // --------------------------------------------------------------------------------------
 
 void ConsoleClass::CheckCommands(void)
@@ -202,7 +202,7 @@ void ConsoleClass::CheckCommands(void)
     			CONSOLE_PRINT("quit - Quit game immediately");
     		} else 
 
-    // Konsole löschen
+    // Konsole lï¿½schen
     if (CONSOLE_COMMAND("clear"))
     {
         for (int i=0; i<MAX_LINES; i++)
@@ -476,7 +476,7 @@ void ConsoleClass::CheckCommands(void)
         strcat_s(name, "/data/levels/");    //DKS - Changed from /data/ to /data/levels/
         strcat_s(name, dummy);
 
-        // .map anhängen
+        // .map anhï¿½ngen
         if (dummy2[strlen (dummy2) - 1] != 'p' ||
                 dummy2[strlen (dummy2) - 2] != 'a' ||
                 dummy2[strlen (dummy2) - 3] != 'm')
@@ -522,7 +522,7 @@ void ConsoleClass::CheckCommands(void)
         lpD3DDevice->BeginScene();
 #endif
 
-        // Screen schwarz färben
+        // Screen schwarz fï¿½rben
         RenderRect(0, 0, 640, 480, 0xFF000000);
 
         // Mini Map anzeigen
@@ -690,7 +690,7 @@ void ConsoleClass::ScrollUp(void)
     for (int i = 0; i < MAX_LINES-1; i++)
         strcpy_s(Text[i], Text[i+1]);
 
-    // Und unterste Zeile mit der letzten eingabe füllen
+    // Und unterste Zeile mit der letzten eingabe fï¿½llen
     /*strcpy_s(Text[MAX_LINES], Buffer);*/
     strcpy_s(Text[MAX_LINES-1], Buffer);
     Buffer[0] = '\0';
@@ -796,7 +796,7 @@ void ConsoleClass::CheckInput(void)
 
             Pressed[i] = true;
 
-            // Zeichen anhängen
+            // Zeichen anhï¿½ngen
             //DKS - Fixed buffer overflow by adding strlen check that encompasses both
             //      single characters and spaces. Previously, only single chars had a
             //      check and, worse, it had an off-by-one error. (Caught with valgrind)
@@ -805,7 +805,7 @@ void ConsoleClass::CheckInput(void)
             //      in low-res modes using new font scaling support.
             if (strlen(Buffer) < MAX_CHARS-1 && pDefaultFont->StringLength(Buffer) < 570)
             {
-                // Space anhängen
+                // Space anhï¿½ngen
                 if (i == DIK_SPACE) {
                     strcat_s(Buffer, " ");
                 } else if (strlen(GetKeyName(i)) == 1) //DKS - Replacement line that also has saner strlen(GetKeyName) check
@@ -861,7 +861,7 @@ void ConsoleClass::CheckInput(void)
             }
         }
 
-        // Gedrückte Tasten locken
+        // Gedrï¿½ckte Tasten locken
         if (!KeyDown(i))
             Pressed[i] = false;
     }
@@ -896,7 +896,7 @@ void ConsoleClass::Hide(void)
 
 bool ConsoleClass::DoConsole(void)
 {
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
     // On GCW Zero, the Home key (Power Slider switch) is mapped to the console as well as the Tab key.
     // Konsole ist aktivierbar
     if (!KeyDown(DIK_TAB) && !KeyDown(DIK_HOME))
@@ -937,7 +937,7 @@ bool ConsoleClass::DoConsole(void)
     if (Fade != 0)
         its_Alpha += 2.0f * Fade SYNC;
 
-    // Überlauf verhindern
+    // ï¿½berlauf verhindern
     if (its_Alpha > 255.0f)
     {
         its_Alpha = 255.0f;

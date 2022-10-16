@@ -5,7 +5,7 @@
 // DirectInput Klasse
 // zum Erfassen von Eingaben durch Tastaur, Maus und Joystick/Joypad
 //
-// (c) 2002 Jörg M. Winterstein
+// (c) 2002 Jï¿½rg M. Winterstein
 //
 // --------------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@
 // --------------------------------------------------------------------------------------
 
 #if defined(PLATFORM_DIRECTX)
-char        TastaturPuffer[MAX_KEYS];	// Tastaturpuffer für Keyboardabfrage
+char        TastaturPuffer[MAX_KEYS];	// Tastaturpuffer fï¿½r Keyboardabfrage
 #elif defined(PLATFORM_SDL)
 char*       TastaturPuffer;
 #endif
@@ -48,7 +48,7 @@ bool CALLBACK EnumForceFeedbackDevices(LPDIDEVICEINSTANCE lpddi, LPVOID pv)
     DirectInput.Joysticks[DirectInput.JoysticksFound].guidJoystickDevice = DirectInput.guidJoystickDevice;
     strcpy_s(DirectInput.Joysticks[DirectInput.JoysticksFound].JoystickName, strlen((char*)lpddi->tszProductName) + 1, (char*)lpddi->tszProductName);
 
-    // Counter erhöhen
+    // Counter erhï¿½hen
     DirectInput.JoysticksFound++;
 
     // Genug Joysticks? Dann halte die EnumDevices() Funktion an
@@ -82,7 +82,7 @@ bool CALLBACK EnumJoystickDevices(LPDIDEVICEINSTANCE lpddi, LPVOID pv)
     DirectInput.Joysticks[DirectInput.JoysticksFound].CanForceFeedback = false;
     strcpy_s(DirectInput.Joysticks[DirectInput.JoysticksFound].JoystickName, strlen((char*)lpddi->tszProductName) + 1, (char*)lpddi->tszProductName);
 
-    // Counter erhöhen
+    // Counter erhï¿½hen
     DirectInput.JoysticksFound++;
 
     // Genug Joysticks? Dann halte die EnumDevices() Funktion an
@@ -119,7 +119,7 @@ DirectInputClass::DirectInputClass(void)
     NumberOfKeys = MAX_KEYS;
 #endif
 
-    // Zu Beginn alle Eingabegeräte zurücksetzen
+    // Zu Beginn alle Eingabegerï¿½te zurï¿½cksetzen
     MausX		 = 0;
     MausY		 = 0;
     for(int i=0; i<MAX_MOUSEBUTTONS; i++)
@@ -127,7 +127,7 @@ DirectInputClass::DirectInputClass(void)
 
     JoysticksFound = 0;
     UseForceFeedback = false;
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
     InternalJoystickIndex = 0;      // DKS: Set to the device's internal joystick controls, default is 0.
 #endif //GCW
 }
@@ -175,7 +175,7 @@ bool DirectInputClass::Init(HWND hwnd, HINSTANCE hinst)
     }
     Protokoll.WriteText( false, "Keyboard : CreateDevice successful!\n" );
 
-    // Datenformat für Keyboard festlegen
+    // Datenformat fï¿½r Keyboard festlegen
     hresult = lpDIKeyboard->SetDataFormat(&c_dfDIKeyboard);
     if(hresult != DI_OK)
     {
@@ -364,8 +364,47 @@ bool DirectInputClass::Init(HWND hwnd, HINSTANCE hinst)
                 Protokoll.WriteText( false, "Found GCW Zero's built-in controls.\n" );
             }
 #endif //GCW
+#if defined(OPENDINGUX)
+            if (strcmp(Joysticks[i].JoystickName, "joystick") == 0) {
+                // Replace OpenDingux control's name with something that is clearer
+                strcpy_s(Joysticks[i].JoystickName, "OD Joystick");
+                InternalJoystickIndex = i;
+                Protokoll.WriteText( false, "Found OpenDingux's built-in controls.\n" );
+            }
+#endif //OPENDINGUX
         }
     }
+#if defined(OPENDINGUX)
+    // OpenDingux KayPad if not joystick detected (RG280V)
+    if (!JoysticksFound) {
+        JoysticksFound = 1;
+        if(Joysticks[0].Init(-1) == false)
+        {
+            Protokoll.WriteText( false, "Error opening joystick\n" );
+        } else {
+            JoystickFound = true;
+
+            // Replace OpenDingux control's name with something that is clearer
+            strcpy_s(Joysticks[0].JoystickName, "OD Keypad");
+            InternalJoystickIndex = 0;
+            Protokoll.WriteText( false, "Found OpenDingux's keypad controls.\n" );
+        }
+    }
+
+    // Init Force Feedback effects for OpenDingux
+    if (JoystickFound) {
+        for (int i = 0; i < JoysticksFound; i++) {
+            if (Joysticks[i].CanForceFeedback) {
+                Protokoll.WriteText( false, "Initializing ForceFeedback Effects\n" );
+
+                Joysticks[i].pFFE_SmallVib = new OD_SmallVib(Joysticks[i].ForceFeedbackDevice);
+                Joysticks[i].pFFE_BigVib = new OD_BigVib(Joysticks[i].ForceFeedbackDevice);
+                Joysticks[i].pFFE_MaxVib = new OD_MaxVib(Joysticks[i].ForceFeedbackDevice);
+                Joysticks[i].pFFE_Blitz = new OD_Blitz(Joysticks[i].ForceFeedbackDevice);
+            }
+        }
+    }
+#endif //OPENDINGUX
 #endif /* ANDROID */
 
     return true;
@@ -410,6 +449,8 @@ void DirectInputClass::Exit(void)
     {
 #if SDL_VERSION_ATLEAST(2,0,0)
         if (Joysticks[i].lpDIJoystick != NULL)
+#elif defined(OPENDINGUX)
+        if (Joysticks[i].lpDIJoystick != NULL && SDL_JoystickOpened(i))
 #else
         if (SDL_JoystickOpened(i))
 #endif
@@ -501,10 +542,10 @@ bool DirectInputClass::UpdateMaus(bool gepuffert)
                 return false;
             }
 
-            if (dwElemente == 0)			// Keine Elemente wurden verändert
+            if (dwElemente == 0)			// Keine Elemente wurden verï¿½ndert
                 fertig = true;
 
-            switch (od.dwOfs)				// Feld 'dwOfs' enthält Maus-Aktion:
+            switch (od.dwOfs)				// Feld 'dwOfs' enthï¿½lt Maus-Aktion:
             {
             case DIMOFS_X:				// Horizontale Bewegung
                 MausX += od.dwData;
@@ -516,8 +557,8 @@ bool DirectInputClass::UpdateMaus(bool gepuffert)
                 fertig = true;
                 break;
 
-            case DIMOFS_BUTTON0:		// Knopf 0 gedrückt
-                if (od.dwData & 0x80)	// Knopf gedrück
+            case DIMOFS_BUTTON0:		// Knopf 0 gedrï¿½ckt
+                if (od.dwData & 0x80)	// Knopf gedrï¿½ck
                 {
                     MausButtons[0] = true;
                     fertig = TRUE;
@@ -529,8 +570,8 @@ bool DirectInputClass::UpdateMaus(bool gepuffert)
                 }
                 break;
 
-            case DIMOFS_BUTTON1:	// Knopf 1 gedrückt
-                if (od.dwData & 0x80)	// Knopf gedrück
+            case DIMOFS_BUTTON1:	// Knopf 1 gedrï¿½ckt
+                if (od.dwData & 0x80)	// Knopf gedrï¿½ck
                 {
                     MausButtons[1] = true;
                     fertig = TRUE;
@@ -542,8 +583,8 @@ bool DirectInputClass::UpdateMaus(bool gepuffert)
                 }
                 break;
 
-            case DIMOFS_BUTTON2:	// Knopf 2 gedrückt
-                if (od.dwData & 0x80)	// Knopf gedrück
+            case DIMOFS_BUTTON2:	// Knopf 2 gedrï¿½ckt
+                if (od.dwData & 0x80)	// Knopf gedrï¿½ck
                 {
                     MausButtons[2] = true;
                     fertig = TRUE;
@@ -590,7 +631,7 @@ bool DirectInputClass::UpdateMaus(bool gepuffert)
         MausX += ms.lX;
         MausY += ms.lY;
 
-        // Buttons prüfen
+        // Buttons prï¿½fen
         if (ms.rgbButtons[0] & 0x80)
             MausButtons[0] = true;
         else
@@ -663,7 +704,7 @@ void DirectInputClass::UpdateJoysticks(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Checken ob keine Taste mehr gedrückt ist
+// Checken ob keine Taste mehr gedrï¿½ckt ist
 // --------------------------------------------------------------------------------------
 
 bool DirectInputClass::AreAllKeysReleased()
@@ -676,7 +717,7 @@ bool DirectInputClass::AreAllKeysReleased()
 }
 
 // --------------------------------------------------------------------------------------
-// Checken ob irgendeine Taste gedrückt ist
+// Checken ob irgendeine Taste gedrï¿½ckt ist
 // --------------------------------------------------------------------------------------
 
 bool DirectInputClass::AnyKeyDown(void)
@@ -689,7 +730,7 @@ bool DirectInputClass::AnyKeyDown(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Checken ob irgendein Button gedrückt ist
+// Checken ob irgendein Button gedrï¿½ckt ist
 // --------------------------------------------------------------------------------------
 
 bool DirectInputClass::AnyButtonDown(void)
@@ -907,6 +948,23 @@ static char InternalButtonNumToStringMap[8][10] = {
     "R"         // Button 7
 };
 #endif // GCW
+#if defined(OPENDINGUX)
+#define GCW_MAX_BUTTONS 12
+static char InternalButtonNumToStringMap[12][10] = {
+    "B",        // SDLK_LALT Button 0
+    "A",    	// SDLK_LCTRL
+    "Y",	// SDLK_LSHIFT
+    "X",	// SDLK_SPACE
+    "Select",	// SDLK_ESCAPE
+    "Start",	// SDLK_RETURN
+    "L",	// SDLK_TAB
+    "R",        // SDLK_BACKSPACE
+    "L2",       // SDLK_PAGEUP
+    "R2",	// SDLK_PAGEDOWN
+    "L3",	// SDLK_KP_DIVIDE
+    "R3"	// SDLK_KP_PERIOD Button 11	
+};
+#endif // GCW
 
 //DKS - Added helper function to facilitate customized naming of joystick buttons and
 //      when not customized, to report joy buttons as ranging 1..99 instead of 0..98
@@ -917,7 +975,7 @@ char* DirectInputClass::MapButtonToString(int joy_idx, int button)
     if (button < 0) {
         return TextArray[TEXT_NICHT_DEFINIERT];
     } else {
-#ifdef GCW
+#if defined(GCW) || defined(OPENDINGUX)
         // Special case for GCW Zero's internal controls:
         if (joy_idx == GetInternalJoystickIndex() && button < GCW_MAX_BUTTONS)
         {
@@ -934,7 +992,7 @@ char* DirectInputClass::MapButtonToString(int joy_idx, int button)
 }
 
 // DKS - Convenience function for when in the actual game
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
 bool DirectInputClass::InternalJoystickMainMenuButtonDown(void) 
 { 
     int joy_idx = GetInternalJoystickIndex();

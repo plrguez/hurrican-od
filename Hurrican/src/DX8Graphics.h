@@ -6,7 +6,7 @@
 // zum initialisieren von DirectX8
 // beinhaltet zudem verschiedene Grafik-Funktionen zum Speichern von Screenshots usw
 //
-// (c) 2002 Jörg M. Winterstein
+// (c) 2002 Jï¿½rg M. Winterstein
 //
 // --------------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ enum
 // --------------------------------------------------------------------------------------
 
 // --------------------------------------------------------------------------------------
-// Struktur für einen 2D Vertex
+// Struktur fï¿½r einen 2D Vertex
 // --------------------------------------------------------------------------------------
 
 //DKS - Removed unnecessary z-coordinate:
@@ -111,7 +111,11 @@ public:
     SDL_Window*             Window;
     SDL_GLContext           GLcontext;
 #else  /* SDL 1.2 */
+#if defined(OPENDINGUX)
+    int gWidth, gHeigth;
+#else
     SDL_Surface*            Screen;
+#endif
 #endif
     SDL_Rect                WindowView;
     SDL_Rect                RenderView;
@@ -134,7 +138,7 @@ public:
 
     bool TakeScreenshot(const char Filename[100], int screenx,
                         int screeny);	// Screenshot machen
-    void SetColorKeyMode(void);								// Alpha für Colorkey oder
+    void SetColorKeyMode(void);								// Alpha fï¿½r Colorkey oder
     void SetAdditiveMode(void);								// Additive-Blending nutzen
     void SetWhiteMode	(void);								// Komplett weiss rendern
     void SetFilterMode(bool filteron);						// Linearer Textur Filter ein/aus
@@ -166,9 +170,9 @@ extern DirectGraphicsClass		DirectGraphics;					// DirectGraphics Klasse
 extern LPDIRECT3DSURFACE8		lpBackbuffer;					// Der Backbuffer
 #if defined(PLATFORM_DIRECTX)
 extern D3DFORMAT				D3DFormat;						// Format der Primary Surface
-extern D3DCAPS8					d3dcaps;						// Möglichkeiten der Hardware
+extern D3DCAPS8					d3dcaps;						// Mï¿½glichkeiten der Hardware
 #endif
-extern LPDIRECT3DVERTEXBUFFER8	lpVBSprite;						// VertexBuffer für die Sprites
+extern LPDIRECT3DVERTEXBUFFER8	lpVBSprite;						// VertexBuffer fï¿½r die Sprites
 extern D3DXMATRIX				matProj;						// Projektionsmatrix
 extern D3DXMATRIX				matWorld;						// Weltmatrix
 extern float					DegreetoRad[360];				// Tabelle mit Rotationswerten

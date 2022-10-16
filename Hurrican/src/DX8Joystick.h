@@ -4,7 +4,7 @@
 //
 // Joystick Klasse
 //
-// (c) 2002 Jörg M. Winterstein
+// (c) 2002 Jï¿½rg M. Winterstein
 //
 // --------------------------------------------------------------------------------------
 
@@ -26,6 +26,60 @@
 #endif
 #if defined(PLATFORM_SDL)
 #include "SDL_port.h"
+#endif
+#if defined(OPENDINGUX)
+#include <shake.h>
+
+class IODFFEffect {
+public:
+    IODFFEffect(Shake_Device *ForceFeedbackDevice)
+    {
+      device = ForceFeedbackDevice;
+    }
+    void Start(uint16_t iterations, uint16_t flags) { Shake_Play(device, id); };
+    virtual void Stop() { Shake_Stop(device, id); };
+    virtual ~IODFFEffect() { Shake_EraseEffect(device, id); };
+protected:
+    Shake_Effect effect;
+    int id;
+    Shake_Device *device;
+};
+
+class OD_SmallVib : public IODFFEffect {
+public:
+  OD_SmallVib(Shake_Device *ForceFeedbackDevice) : IODFFEffect(ForceFeedbackDevice)
+  {
+    Shake_SimpleRumble(&effect, 0.6, 0.4, 0.25);
+    id = Shake_UploadEffect(device, &effect);
+  }
+};
+
+class OD_BigVib : public IODFFEffect {
+public:
+  OD_BigVib(Shake_Device *ForceFeedbackDevice) : IODFFEffect(ForceFeedbackDevice)
+  {
+    Shake_SimpleRumble(&effect, 0.9, 0.4, 0.25);
+    id = Shake_UploadEffect(device, &effect);
+  }
+};
+
+class OD_MaxVib : public IODFFEffect {
+public:
+  OD_MaxVib(Shake_Device *ForceFeedbackDevice) : IODFFEffect(ForceFeedbackDevice)
+  {
+    Shake_SimplePeriodic(&effect, SHAKE_PERIODIC_SINE, 1.0, 0.0, 0.15, 0.85);
+    id = Shake_UploadEffect(device, &effect);
+  }
+};
+
+class OD_Blitz : public IODFFEffect {
+public:
+  OD_Blitz(Shake_Device *ForceFeedbackDevice) :  IODFFEffect(ForceFeedbackDevice)
+  {
+    Shake_SimplePeriodic(&effect, SHAKE_PERIODIC_SINE, 0.5, 0.5, 60.0, 0.0);
+    id = Shake_UploadEffect(device, &effect);
+  }
+};
 #endif
 
 // --------------------------------------------------------------------------------------
@@ -54,11 +108,18 @@ public:
     int   JoystickY;								// Joystick y-Koordinaten
     int   JoystickX2;								// Joystick x-Koordinaten 2. analog Stick
     int   JoystickY2;								// Joystick y-Koordinaten 2. analog Stick
-    int   JoystickPOV;								// POV (für coolie hat)
+    int   JoystickPOV;								// POV (fï¿½r coolie hat)
     int   JoystickMode;								// Joypad oder Stickmode
-    bool  JoystickButtons[MAX_JOYSTICKBUTTONS];		// Feuerknopf gedrückt?
+    bool  JoystickButtons[MAX_JOYSTICKBUTTONS];		// Feuerknopf gedrï¿½ckt?
     char  JoystickName[70];							// Joystick Produktname
     int   NumButtons;                               // How many buttons joystick supports
+#if defined(OPENDINGUX)
+    Shake_Device *ForceFeedbackDevice;
+    IODFFEffect *pFFE_SmallVib;
+    IODFFEffect *pFFE_BigVib;
+    IODFFEffect *pFFE_MaxVib;
+    IODFFEffect *pFFE_Blitz;
+#endif
 
     DirectJoystickClass(void);
     ~DirectJoystickClass(void);

@@ -59,6 +59,9 @@ void    EGL_Close                   ( void );
 //DKS - Now takes additional parameters 'depth' and 'vsync' allowing Hurrican
 //      to pass in requested VSync and color depth.
 int8_t  EGL_Open                    ( uint16_t width, uint16_t height, uint16_t depth, bool vsync );
+#if defined(OPENDINGUX)
+int8_t  EGL_Init_DRM( int *width, int *height );
+#endif
 
 void    EGL_SwapBuffers             ( void );
 

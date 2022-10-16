@@ -4,7 +4,7 @@
 //
 // Logdatei.cpp Header
 //
-// (c) 2002 Jörg M. Winterstein
+// (c) 2002 Jï¿½rg M. Winterstein
 //
 // --------------------------------------------------------------------------------------
 
@@ -66,7 +66,11 @@ struct sCommandLineParams
 //      platform does not support the default value of 32, you may define it
 //      by setting DEFAULT_SCREENBPP to correct value in Makefile.
 #ifndef DEFAULT_SCREENBPP
+#if defined(OPENDINGUX)
+#define DEFAULT_SCREENBPP  16
+#else
 #define DEFAULT_SCREENBPP  32
+#endif
 #endif
 
 #define PARAM_NONE  0
@@ -103,7 +107,7 @@ extern char* g_storage_ext;   // Where data files (levels, graphics, music, etc)
 extern char* g_save_ext;      // Where configuration files, logs, and save games are written (-DKS) (write)
 
 #ifdef _DEBUG
-void ShowDebugInfo(void);							// Allen möglichen Kram anzeigen
+void ShowDebugInfo(void);							// Allen mï¿½glichen Kram anzeigen
 #endif
 
 //DKS - Added FPS reporting:

@@ -6,7 +6,7 @@
 // zum initialisieren von DirectX8
 // beinhaltet zudem verschiedene Grafik-Funktionen zum Speichern von Screenshots usw
 //
-// (c) 2002 Jörg M. Winterstein
+// (c) 2002 Jï¿½rg M. Winterstein
 //
 // --------------------------------------------------------------------------------------
 
@@ -17,6 +17,7 @@
 #include <time.h>
 #include <stdexcept>
 #include <string>
+#include <xf86drmMode.h>
 #include "Globals.h"
 #include "Gameplay.h"
 #include "Logdatei.h"
@@ -111,7 +112,7 @@ bool DirectGraphicsClass::Init(HWND hwnd, DWORD dwBreite, DWORD dwHoehe,
     d3dpp.AutoDepthStencilFormat			= D3DFMT_D16;
     d3dpp.hDeviceWindow						= hwnd;							// Fenster Handle
     d3dpp.BackBufferWidth					= dwBreite;					    // ScreenBreite
-    d3dpp.BackBufferHeight					= dwHoehe;					    // Screenhöhe
+    d3dpp.BackBufferHeight					= dwHoehe;					    // Screenhï¿½he
     d3dpp.BackBufferFormat					= D3DFMT_X8R8G8B8;
 
     d3dpp.SwapEffect	= D3DSWAPEFFECT_COPY_VSYNC;		// VSync an
@@ -212,7 +213,7 @@ _ModeFound:
         SquareOnly = false;
     }
 
-    // Device kann nur Texturen mit 2er-Potenz-Grösse
+    // Device kann nur Texturen mit 2er-Potenz-Grï¿½sse
     if (d3dCaps.TextureCaps & D3DPTEXTURECAPS_POW2)
     {
         Protokoll.WriteText( false, "Power of Two: TRUE\n" );
@@ -228,7 +229,7 @@ _ModeFound:
 
     Protokoll.WriteText( false, "\n-> Direct3D init successful!\n\n" );
 
-    // DegreetoRad-Tabelle füllen
+    // DegreetoRad-Tabelle fï¿½llen
     for(int i=0; i<360; i++)
         DegreetoRad[i] = float(PI * i / 180);
 
@@ -270,7 +271,11 @@ bool DirectGraphicsClass::Init(HWND hwnd, DWORD dwBreite, DWORD dwHoehe,
 
     // Initialize defaults, Video and Audio subsystems
     Protokoll.WriteText( false, "Initializing SDL.\n" );
+#if defined(OPENDINGUX)
+    if (SDL_Init( SDL_INIT_AUDIO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK )==-1)
+#else
     if (SDL_Init( SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK )==-1)
+#endif
     {
         Protokoll.WriteText( false, "Failed to initialize SDL: %s.\n", SDL_GetError() );
         return false;
@@ -344,13 +349,14 @@ bool DirectGraphicsClass::Init(HWND hwnd, DWORD dwBreite, DWORD dwHoehe,
     GLcontext = SDL_GL_CreateContext(Window);
 #else /* SDL 1.2 */
     //SDL_WM_SetCaption("Hurrican", "Hurrican");
-
+#if !defined(OPENDINGUX)
     Screen = SDL_SetVideoMode( ScreenWidth, ScreenHeight, ScreenDepth, flags );
     if (Screen == NULL)
     {
         Protokoll.WriteText( false, "Failed to %dx%dx%d video mode: %s\n", ScreenWidth, ScreenHeight, ScreenDepth, SDL_GetError() );
         return false;
     }
+#endif
 #endif
 
     SDL_ShowCursor(SDL_DISABLE);
@@ -360,8 +366,22 @@ bool DirectGraphicsClass::Init(HWND hwnd, DWORD dwBreite, DWORD dwHoehe,
 #if SDL_VERSION_ATLEAST(2,0,0)
     SDL_GetWindowSize( Window, &actual_w, &actual_h );
 #else
+#if defined(OPENDINGUX)
+    if (EGL_Init_DRM( &actual_w, &actual_h))
+    {
+        Protokoll.WriteText( false, "failed to initialize DRM\n" );
+        return false;
+    }
+    if (actual_w == 320) 
+      CommandLineParams.LowRes = true;
+    ScreenWidth = actual_w;
+    ScreenHeight = actual_h;
+    gWidth = ScreenWidth;
+    gHeigth = ScreenHeight;
+#else
     actual_w = Screen->w;
     actual_h = Screen->h;
+#endif
 #endif
 
     //DKS - EGL_Open now takes additional parameters to specify desired screen
@@ -463,11 +483,19 @@ bool DirectGraphicsClass::Init(HWND hwnd, DWORD dwBreite, DWORD dwHoehe,
 
     Protokoll.WriteText( false, "\n-> OpenGL init successful!\n\n" );
 
-    // DegreetoRad-Tabelle füllen
+    // DegreetoRad-Tabelle fï¿½llen
     for(int i=0; i<360; i++)
         DegreetoRad[i] = float(PI * i / 180);
 
     SetColorKeyMode();
+    
+#if defined(OPENDINGUX)
+    if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1)
+    {
+        printf( "Failed to initialize SDL: %s.\n", SDL_GetError() );
+        return false;
+    }
+#endif
 
     return true;
 }
@@ -505,8 +533,8 @@ bool DirectGraphicsClass::Exit(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Infos für Device Objekt setzen
-// Für Init und nach Task Wechsel
+// Infos fï¿½r Device Objekt setzen
+// Fï¿½r Init und nach Task Wechsel
 // --------------------------------------------------------------------------------------
 
 bool DirectGraphicsClass::SetDeviceInfo(void)
@@ -514,7 +542,7 @@ bool DirectGraphicsClass::SetDeviceInfo(void)
 #if defined(PLATFORM_DIRECTX)
     HRESULT hr;
 
-    // Globale Variable mit dem tatsächlichen BackBuffer füllen
+    // Globale Variable mit dem tatsï¿½chlichen BackBuffer fï¿½llen
     lpD3DDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &lpBackbuffer);
 
     // Licht, Cullmodus und Z-Buffer aktivieren
@@ -680,7 +708,7 @@ bool DirectGraphicsClass::TakeScreenshot(const char Filename[100], int screenx, 
 {
 #if defined(PLATFORM_DIRECTX)
     FILE*				f = NULL;					// Datei
-    HRESULT				hr;							// Für Fehler-Prüfung
+    HRESULT				hr;							// Fï¿½r Fehler-Prï¿½fung
     IDirect3DSurface8*	FrontBuffer;				// Zeiger auf Frontbuffer
 
     // Surface erzeugen, in die das Bild kopiert wird
@@ -697,7 +725,7 @@ bool DirectGraphicsClass::TakeScreenshot(const char Filename[100], int screenx, 
         return false;
     }
 
-    // BMP Datei erzeugen, wobei bereits existierende Dateien nicht überschrieben werden
+    // BMP Datei erzeugen, wobei bereits existierende Dateien nicht ï¿½berschrieben werden
     // so entstehen dann Screenshot000 - Screenshot999
 
     char	TempName[100];
@@ -745,7 +773,7 @@ bool DirectGraphicsClass::TakeScreenshot(const char Filename[100], int screenx, 
 }
 
 // --------------------------------------------------------------------------------------
-// Renderstates für Sprites mit ColorKey setzen
+// Renderstates fï¿½r Sprites mit ColorKey setzen
 // --------------------------------------------------------------------------------------
 
 void DirectGraphicsClass::SetColorKeyMode(void)
@@ -764,7 +792,7 @@ void DirectGraphicsClass::SetColorKeyMode(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Renderstates für Sprites setzen, die komplett weiss gerendert werden
+// Renderstates fï¿½r Sprites setzen, die komplett weiss gerendert werden
 // --------------------------------------------------------------------------------------
 
 void DirectGraphicsClass::SetWhiteMode(void)
@@ -783,7 +811,7 @@ void DirectGraphicsClass::SetWhiteMode(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Renderstates für Sprites mit Additivem Alphablending setzen
+// Renderstates fï¿½r Sprites mit Additivem Alphablending setzen
 // --------------------------------------------------------------------------------------
 
 void DirectGraphicsClass::SetAdditiveMode(void)
@@ -802,12 +830,12 @@ void DirectGraphicsClass::SetAdditiveMode(void)
 }
 
 // --------------------------------------------------------------------------------------
-// Renderstates für linearen Texturfilter ein/ausschalten
+// Renderstates fï¿½r linearen Texturfilter ein/ausschalten
 // --------------------------------------------------------------------------------------
 
 void DirectGraphicsClass::SetFilterMode (bool filteron)
 {
-    // Filter schon an? Dann nichts ändern
+    // Filter schon an? Dann nichts ï¿½ndern
     //
 
     if (filteron == FilterMode)
@@ -1196,6 +1224,9 @@ void DirectGraphicsClass::SetupFramebuffers( void )
         SDL_GetWindowSize( Window, &tmp_w, &tmp_h );
         WindowView.w = tmp_w;  WindowView.h = tmp_h;
     }
+#elif defined(OPENDINGUX)
+    WindowView.w = gWidth;
+    WindowView.h = gHeigth;
 #else
     WindowView.w = Screen->w;
     WindowView.h = Screen->h;
@@ -1250,7 +1281,11 @@ void DirectGraphicsClass::SetupFramebuffers( void )
     }
 
     if (CommandLineParams.LowRes) {
+#if defined(OPENDINGUX)
+        glViewport( 0, 0, gWidth, gHeigth);
+#else
         glViewport( 0, 0, LOWRES_SCREENWIDTH, LOWRES_SCREENHEIGHT);
+#endif
     } else {
         glViewport( WindowView.x, WindowView.y, WindowView.w, WindowView.h );    /* Setup our viewport. */
     }

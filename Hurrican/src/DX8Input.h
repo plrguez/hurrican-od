@@ -5,7 +5,7 @@
 // DirectInput Klasse
 // zum Erfassen von Eingaben durch Tastaur, Maus und Joystick/Joypad
 //
-// (c) 2002 Jörg M. Winterstein
+// (c) 2002 Jï¿½rg M. Winterstein
 //
 // --------------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ class DirectInputClass
 {
 private:
     LPDIRECTINPUT8			lpDI;					// DirectInput Hauptinterface
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
     int                     InternalJoystickIndex;  // If the system has built-in joystick controls, 
 #endif //GCW
                                                     // this is their index, -1 otherwise.
@@ -97,7 +97,7 @@ public:
     bool UpdateTastatur(void);						// Tasten abfragen und im Puffer speichern
     bool UpdateMaus	   (bool gepuffert);			// Maus abfragen gepuffert/ungepuffert
     void AcquireKeyboard(void);						// Keyboard akquirierens
-    bool AreAllKeysReleased();						// Checken ob keine Taste mehr gedrückt ist
+    bool AreAllKeysReleased();						// Checken ob keine Taste mehr gedrï¿½ckt ist
     bool AnyKeyDown(void);
     bool AnyButtonDown(void);
     void UpdateJoysticks(void);
@@ -106,7 +106,7 @@ public:
                                                         // (or other special cases) will return the custom
                                                         // string for the devices's buttons ("X", "Select", etc)
 
-#if defined(GCW)
+#if defined(GCW) || defined(OPENDINGUX)
     // If the system has built-in joystick controls, this is their index. 0 is default.
     // On embedded systems like GCW Zero, this is set to the device's internal controls 
     // so that a player is never 'locked out' and also so the game is not dependent on
@@ -146,7 +146,7 @@ extern char					TastaturPuffer[256];				// Tastaturpuffer des Keyboards
 #elif defined(PLATFORM_SDL)
 extern char*				TastaturPuffer;
 #endif
-extern bool					UseForceFeedback;					// ForceFeedback Fähigkeit nutzen ?
+extern bool					UseForceFeedback;					// ForceFeedback Fï¿½higkeit nutzen ?
 
 #endif
 
