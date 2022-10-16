@@ -2,13 +2,14 @@
 
 You can get latest OpenDingux firmware from [here](https://github.com/OpenDingux/buildroot/actions)
 
-# Details for this port
+## Details for this port
 
 - For use in RG350(P/M), RG280(V/M) and GCW Zero devices with mainline OpenDingux firmware
 - Force feedback supported
 
-# LICENSE
+## LICENSE
 
 You can read original copyright terms in the README.txt file. The same terms apply for this repo.
 
+Some code from [mesa-kmscube](https://github.com/freedesktop/mesa-kmscube) is used for DRM/GMB/EGL.
 
