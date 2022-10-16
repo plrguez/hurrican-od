@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Hurrican
+Comment=Hurrican
+Exec=hurrican-od.sh
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=Hurrican
+Categories=games;
+X-OD-NeedsDownscaling=true
+X-OD-Manual=readme.txt
