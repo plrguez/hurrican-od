@@ -1,4 +1,4 @@
-[OpenDingux+(https://github.com/OpenDingux/buildroot) Hurrican port based on Pickle & Senquack GCW Zero port. Original code can be obtained from [here](https://sourceforge.net/p/hurrican/code/HEAD/tree/trunk/)
+[OpenDingux](https://github.com/OpenDingux/buildroot) Hurrican port based on Pickle & Senquack GCW Zero port. Original code can be obtained from [here](https://sourceforge.net/p/hurrican/code/HEAD/tree/trunk/)
 
 You can get latest OpenDingux firmware from [here](https://github.com/OpenDingux/buildroot/actions)
 
